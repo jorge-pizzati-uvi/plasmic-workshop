@@ -1,6 +1,6 @@
 # Plasmic workshop
 
-Minimal Next.js 15.5 (App Router, Turbopack) host for the Plasmic workshop. Contains only the Plasmic integration: loaders, page rendering, Studio host, draft preview, publish webhook, and standalone code components.
+Minimal Next.js 15.5 (App Router, Turbopack) host for the Plasmic workshop. Contains only the Plasmic integration: loaders, page rendering, Studio host, draft preview, cache purge endpoint, and standalone code components.
 
 ## Setup
 
@@ -28,7 +28,7 @@ Scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `format`.
 |---|---|
 | App host (Project settings → Code components) | `https://<host>/plasmic-host` |
 | Preview URL (per page or project) | `https://<host>/api/draft?url=/<page-path>&secret=<NEXT_PREVIEW_SECRET>` |
-| Publish webhook (Publish → Call webhooks) | `POST https://<host>/api/revalidate-plasmic/?secret=<NEXT_CACHE_REVALIDATE_SECRET>` |
+| Publish webhook (Publish → Call webhooks) | `GET https://<host>/api/revalidate-cache?secret=<NEXT_CACHE_REVALIDATE_SECRET>` |
 
 Locally use `http://localhost:3000` as `<host>`. Secrets are optional locally (unset = no check).
 
@@ -59,11 +59,14 @@ Studio's Preview button opens `/api/draft?url=…&secret=…`, which enables Nex
 
 Pages are cached with tags `plasmic-pages` (all), `plasmic-manifest` (page list), `plasmic-data` (query data), `posts-data`, and `<path>`.
 
-- Publish webhook → purges `plasmic-pages` (everything). Add `&scope=pages` to purge only `pagesChanged` + the manifest.
-- Manual: `GET /api/revalidate-cache?tag=plasmic-data&secret=…` (refresh query data without publishing), or `tag=/some/path` for one page.
+One endpoint, GET, so it works from a browser tab, curl, or the Studio publish webhook:
+
+- `GET /api/revalidate-cache?secret=…` → purge every Plasmic page (default tag `plasmic-pages`). This is the publish webhook URL.
+- `GET /api/revalidate-cache?tag=plasmic-data&secret=…` → refresh `$q` data without publishing.
+- `GET /api/revalidate-cache?tag=/some/path&secret=…` → one page.
 
 ```bash
-curl -X POST "http://localhost:3000/api/revalidate-plasmic/?secret=$S" -H 'content-type: application/json' -d '{"pagesChanged":["/"]}'
+curl "http://localhost:3000/api/revalidate-cache?secret=$S"
 curl "http://localhost:3000/api/revalidate-cache?tag=plasmic-data&secret=$S"
 curl "http://localhost:3000/api/posts?limit=3"
 ```

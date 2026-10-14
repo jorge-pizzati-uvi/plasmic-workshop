@@ -101,12 +101,13 @@
 
 .scrolled .bar {
   height: 54px;
-  padding: 0 72px;
+  padding: 0;
 }
 
 .scrolled .pill {
   height: 54px;
-  border-radius: 0 0 24px 24px;
+  padding: 0 72px;
+  border-radius: 0;
   background: rgba(23, 23, 37, 1);
 }
 
@@ -151,12 +152,8 @@
     display: block;
   }
 
-  .scrolled .bar {
-    padding: 0;
-  }
-
   .scrolled .pill {
-    border-radius: 0;
+    padding: 0 16px;
   }
 }
 

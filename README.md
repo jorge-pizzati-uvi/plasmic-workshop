@@ -70,6 +70,8 @@ curl "http://localhost:3000/api/posts?limit=3"
 
 ## Deploy (Vercel)
 
+Live: **https://plasmic-workshop.vercel.app** (Vercel team `uvi3`, project `plasmic-workshop`). Studio host: `https://plasmic-workshop.vercel.app/plasmic-host`. Secrets live in the Vercel project env (Production).
+
 ```bash
 npx vercel login
 npx vercel link            # new project: plasmic-workshop

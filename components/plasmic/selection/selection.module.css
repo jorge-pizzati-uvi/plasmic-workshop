@@ -1,0 +1,21 @@
+/* Structural only. Both elements carry the className Plasmic passes the code
+ * component, which is what makes them stylable — and, for SelectionItem,
+ * draggable when positioned absolutely — in Studio. */
+
+.provider {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+}
+
+.item {
+  display: inline-flex;
+  /* Stagger unit for Studio: put `var(--selection-delay)` in the transition /
+   * animation delay field. `--selection-index` is set per item (frozen while
+   * exiting), `--selection-stagger` comes from the provider's `stagger` prop
+   * and is 0ms unless the author sets it. */
+  --selection-delay: calc(
+    var(--selection-index, 0) * var(--selection-stagger, 0ms)
+  );
+}

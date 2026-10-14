@@ -1,0 +1,77 @@
+.root {
+  position: relative;
+  overflow: hidden;
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.viewport::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.pannable {
+  cursor: grab;
+}
+
+.panning {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.track {
+  position: absolute;
+  background: var(--scrollbar-track, transparent);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.track.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.trackVertical {
+  top: 0;
+  right: 2px;
+  bottom: 0;
+  width: var(--scrollbar-thumb-width, 6px);
+}
+
+.trackHorizontal {
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: var(--scrollbar-thumb-width, 6px);
+}
+
+.thumb {
+  position: absolute;
+  background: var(--scrollbar-thumb, #cfbba0);
+  border-radius: var(--scrollbar-thumb-radius, 3px);
+  transition: background 150ms ease;
+  touch-action: none;
+}
+
+.thumb:hover,
+.thumb.dragging {
+  background: var(--scrollbar-thumb-hover, #a89777);
+}
+
+.thumbVertical {
+  left: 0;
+  right: 0;
+}
+
+.thumbHorizontal {
+  top: 0;
+  bottom: 0;
+}

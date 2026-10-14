@@ -1,0 +1,72 @@
+/* Base primitives for Tabs. Authors override via className.
+ * Ships only accessibility-critical rules (focus ring) + a small underline
+ * base + a `[hidden]` fallback for pre-hydration paint. Visual design is
+ * fully author-driven: the "Underline" / "Pill" looks are insert templates in
+ * the registration (explicit element styles, visible in the Studio panel),
+ * not CSS here. */
+
+/* Flex parent so slot children with Plasmic "hug content" (width:auto)
+ * actually hug instead of stretching to 100%. align-items:flex-start keeps
+ * children at their intrinsic cross-axis size — set width:stretch/100% per
+ * child when full width is wanted.
+ *
+ * This element also carries the className Plasmic passes the code component,
+ * which is what scopes design tokens (--token-*) for everything inside. */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+}
+
+/* The tab trigger is a div (slot content lives inside it), so these resets
+ * keep it neutral whatever the author drops in. */
+.button {
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.button[data-active='true'] {
+  /* Active text colour is applied inline by TabButton, resolved from its own
+   * `activeColor` or the container's. It has to be inline: a rule here loses
+   * to the author's own colour on the button. Slot content can also bind a
+   * variant to `$ctx.tabButton.isActive`. */
+}
+
+.panel {
+  outline: none;
+}
+
+.panel[hidden] {
+  display: none !important;
+}
+
+/* While a panel animates out it must not hold layout — the incoming panel
+ * takes its place. Only ever matches when `exitDuration > 0`. `.container` is
+ * position:relative, so this anchors there. Paint order between the two
+ * overlapping panels is the author's call (z-index). */
+.panel[data-exiting='true'] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Sliding indicator — thin bar under the active TabButton by default; the
+ * Pill template restyles it as a full-height pill via instance styles. */
+.underline {
+  background: currentColor;
+  pointer-events: none;
+  height: 2px;
+}

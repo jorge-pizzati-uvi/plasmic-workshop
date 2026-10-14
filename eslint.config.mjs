@@ -12,6 +12,11 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    // Mirrors the main repo: `any` allowed in Plasmic registration metadata.
+    rules: { "@typescript-eslint/no-explicit-any": "off" },
+    linterOptions: { reportUnusedDisableDirectives: "off" },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".next/**",

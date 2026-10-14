@@ -1,0 +1,227 @@
+/* SliderCarousel (Swiper) — extended styles. Scoped via CSS module. */
+
+/* Outer wrapper (owns Plasmic-applied className + CSS vars). Fragment-as-
+   root loses className support — this div gives Plasmic Studio a stylable
+   surface. Layout: title slide sits above the Swiper. */
+.container {
+  width: 100%;
+}
+
+.root {
+  width: 100%;
+  /* --sc-height sets a fixed swiper height when provided. Slides fill
+     vertically. Blank var = fallback `auto` (content-driven height). */
+  height: var(--sc-height, auto);
+  /* Swiper 9 public design tokens. Bullet size + gap via var pipeline;
+     color/opacity forward the SliderCarousel's `dotsColor` prop through
+     swiper's built-in bullet color vars. */
+  --swiper-pagination-bullet-size: 11px;
+  --swiper-pagination-bullet-horizontal-gap: 4px;
+  --swiper-pagination-color: var(--sc-dots-color, #ccc);
+  --swiper-pagination-bullet-inactive-color: var(--sc-dots-color, #ccc);
+  --swiper-pagination-bullet-inactive-opacity: 0.4;
+}
+
+/* Reserved padding for absolute-positioned controls (dots, scrubber).
+   Swiper container's overflow:hidden clips anything outside its box —
+   padding grows the box so controls sit inside. `!important` beats
+   swiper's own `.swiper { padding: 0 }`. Zero when the corresponding
+   control isn't rendered (no element in DOM or lock class present). */
+/* Positive offset = reserve padding to push dot BELOW slides.
+   Negative offset = no padding (max clamps to 0); dot pulled UP via
+   `.swiper-pagination { bottom: ... }` rule below. */
+.root:has(:global(.swiper-pagination)):not(
+    :has(:global(.swiper-pagination-lock))
+  ) {
+  padding-bottom: max(0px, var(--sc-dots-offset, 0px)) !important;
+}
+
+/* Scrollbar needs its 38px touch-target height + optional offset. */
+.root:has(:global(.swiper-scrollbar)) {
+  padding-bottom: max(
+    0px,
+    calc(38px + var(--sc-scrollbar-offset, 0px))
+  ) !important;
+}
+
+/* Both dots AND scrollbar: sum both offsets. */
+.root:has(:global(.swiper-pagination)):has(:global(.swiper-scrollbar)):not(
+    :has(:global(.swiper-pagination-lock))
+  ) {
+  padding-bottom: max(
+    0px,
+    calc(
+      38px + var(--sc-scrollbar-offset, 0px) + 20px + var(--sc-dots-offset, 0px)
+    )
+  ) !important;
+}
+
+/* --- Dots (pagination) ---
+   Sizing + scale/opacity states match the previous react-slick design.
+   Swiper's dynamicBullets class names map 1:1 to slick's:
+     swiper-pagination-bullet             = slick-dots li button::before
+     swiper-pagination-bullet-active-main = slick-active-main
+     swiper-pagination-bullet-active-prev = slick-active-prev
+     …-active-prev-prev / -active-next / -active-next-next  → same */
+.root :global(.swiper-pagination) {
+  /* Positive offset: padding above reserves space, dots pinned at bottom.
+     Negative offset: `bottom` becomes positive → pulls dots UP into slides.
+     Use swiper's default text-align centering (not flex) — flex items
+     with default flex-shrink:1 collapse when 17 bullets overflow a narrow
+     container, forcing each bullet to 0 width even with explicit inline
+     width:11px. Inline-block bullets in a text-aligned container flow
+     naturally at their intrinsic size. */
+  text-align: center;
+  bottom: max(0px, calc(-1 * var(--sc-dots-offset, 0px))) !important;
+}
+
+.root :global(.swiper-pagination-bullet) {
+  /* Size/color/margin come from swiper's --swiper-pagination-bullet-* vars
+     set on .root above — do not re-declare here or we re-introduce the
+     init-time measurement mismatch that breaks dynamicBullets positioning. */
+  transform: scale(0.33);
+  transition: transform 500ms ease, opacity 500ms ease;
+}
+
+.root :global(.swiper-pagination-bullet-active-prev),
+.root :global(.swiper-pagination-bullet-active-next) {
+  transform: scale(0.66) !important;
+  opacity: 0.4 !important;
+}
+
+.root :global(.swiper-pagination-bullet-active-prev-prev),
+.root :global(.swiper-pagination-bullet-active-next-next) {
+  transform: scale(0.33) !important;
+  opacity: 0.4 !important;
+}
+
+.root :global(.swiper-pagination-bullet-active-main) {
+  transform: scale(1) !important;
+  opacity: 0.6 !important;
+}
+
+.root :global(.swiper-pagination-bullet-active) {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+/* --- Arrows (navigation) ---
+   Swiper 12 injects its own `<svg class="swiper-navigation-icon">` chevron
+   into auto-created nav buttons. Our arrow is the ::after mask below, so
+   the built-in icon must be hidden or both render (duplicate arrows). */
+.root :global(.swiper-button-prev) :global(.swiper-navigation-icon),
+.root :global(.swiper-button-next) :global(.swiper-navigation-icon) {
+  display: none;
+}
+
+.root :global(.swiper-button-prev),
+.root :global(.swiper-button-next) {
+  width: 55px;
+  height: 55px;
+  color: var(--sc-arrow-color, #fffbec);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.root :global(.swiper-button-prev):hover,
+.root :global(.swiper-button-next):hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.root :global(.swiper-button-prev) {
+  left: 48px;
+}
+
+.root :global(.swiper-button-next) {
+  right: 48px;
+}
+
+.root :global(.swiper-button-prev)::after,
+.root :global(.swiper-button-next)::after {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 33px;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='33' viewBox='0 0 20 33' fill='none'><path d='M19.9429 1.76508C20.0949 2.5937 19.9382 3.38097 19.327 4.00576L6.13574 16.4572L19.6687 29.4405C20.83 31.5881 18.7487 33.7136 16.3712 32.7697C10.9816 28.117 5.97432 23.0286 0.727272 18.2149C-0.0406649 17.4927 -0.195818 16.345 0.239868 15.4292C5.24556 10.3024 10.6775 5.50348 15.8744 0.531744C17.2019 -0.545022 19.6358 0.0871539 19.9429 1.76508Z' fill='black'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='33' viewBox='0 0 20 33' fill='none'><path d='M19.9429 1.76508C20.0949 2.5937 19.9382 3.38097 19.327 4.00576L6.13574 16.4572L19.6687 29.4405C20.83 31.5881 18.7487 33.7136 16.3712 32.7697C10.9816 28.117 5.97432 23.0286 0.727272 18.2149C-0.0406649 17.4927 -0.195818 16.345 0.239868 15.4292C5.24556 10.3024 10.6775 5.50348 15.8744 0.531744C17.2019 -0.545022 19.6358 0.0871539 19.9429 1.76508Z' fill='black'/></svg>");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  font-size: 0;
+  line-height: 0;
+}
+
+.root :global(.swiper-button-next)::after {
+  transform: scaleX(-1);
+}
+
+/* --- Scrubber (scrollbar) ---
+   Matches previous design dimensions:
+   - Container: 38px touch target (transparent) with 1185px max-width
+     (934px at ≤1919), auto-centered, 24px side padding
+   - Track line: 2px gray line rendered via ::before pseudo, centered
+     vertically inside container
+   - Drag/fill: 6px pill (border-radius 20px), blue
+   Positioned absolute at container bottom inside reserved padding. */
+.root :global(.swiper-scrollbar) {
+  position: absolute !important;
+  /* Positive offset: padding reserves space, scrollbar at bottom.
+     Negative offset: pulls scrollbar UP into slides area. */
+  bottom: max(0px, calc(-1 * var(--sc-scrollbar-offset, 0px))) !important;
+  left: 0 !important;
+  right: 0 !important;
+  /* Container width matches VISIBLE track. Padding removed — swiper's
+     drag range = container offsetWidth, so any padding would let the
+     drag overshoot the visible track. Inset via width instead. */
+  max-width: 1137px;
+  width: calc(100% - 48px);
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box;
+  height: 38px !important;
+  background: transparent !important;
+}
+
+@media (max-width: 1919px) {
+  .root :global(.swiper-scrollbar) {
+    max-width: 886px;
+  }
+}
+
+/* Thin gray track line — 2px, centered in the 38px touch area,
+   edge-to-edge within container (container is already inset). */
+.root :global(.swiper-scrollbar)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  /* Track color = 20% opacity of the fill/drag color. color-mix works in
+     Safari 16.2+, Chrome 111+, Firefox 113+ — safe. */
+  background: color-mix(
+    in srgb,
+    var(--sc-scrollbar-fill, #0057ff) 20%,
+    transparent
+  );
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Draggable fill — 6px pill, positioned horizontally by swiper's own
+   `transform: translate3d(X, 0, 0)`. Vertical centering via top offset
+   (NOT translateY — would clobber swiper's horizontal transform). */
+.root :global(.swiper-scrollbar-drag) {
+  background: var(--sc-scrollbar-fill, #0057ff) !important;
+  border-radius: 20px !important;
+  height: 6px !important;
+  top: calc(50% - 3px) !important;
+}

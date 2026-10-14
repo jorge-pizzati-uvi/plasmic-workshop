@@ -22,6 +22,10 @@ Scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `format`.
 4. A client component renders the page with `PlasmicRootProvider` + `PlasmicComponent`, seeded with the prefetched bundle and query data.
 5. Unknown paths → 404.
 
+## Site chrome (placeholder header/footer)
+
+Plasmic pages render inside `app/(site)/layout.tsx`, which wraps them with a placeholder header and footer sized like production (measured on sandals.com): the header is a sticky, zero-height overlay (hero bleeds underneath, 99px bar) that becomes a compact 54px dark bar once scrolled, which is the offset the pages' sticky sub-nav is authored against. The footer matches the production colour and rough height. `/plasmic-host` sits outside the route group so the Studio canvas stays chrome-free. Styles: `components/site-chrome/site-chrome.module.css`.
+
 ## Studio configuration
 
 | Setting | Value |

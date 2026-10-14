@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write 'app/**/*.{ts,tsx}' 'components/**/*.{ts,tsx}' 'lib/**/*.{ts,tsx}'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:https": "concurrently \"next dev --turbopack\" \"local-ssl-proxy --source 8080 --target 3000 --cert localhost.pem --key localhost-key.pem\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
@@ -29,8 +30,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9",
     "eslint": "^9",
     "eslint-config-next": "15.5.28",
+    "local-ssl-proxy": "^2.0.5",
     "prettier": "^3",
     "typescript": "^5"
   },

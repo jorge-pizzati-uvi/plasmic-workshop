@@ -22,11 +22,20 @@ export async function generateStaticParams() {
     return [];
   }
 
-  const pages = await fetchPlasmicPages();
+  // Prerender every published page. An unreachable CDN or a project with no
+  // published version must not fail the build (or dev requests — Next dev
+  // runs this per request): render on demand instead.
+  try {
+    const pages = await fetchPlasmicPages();
 
-  return pages.map(page => ({
-    slug: page.path.split('/').filter(Boolean),
-  }));
+    return pages.map(page => ({
+      slug: page.path.split('/').filter(Boolean),
+    }));
+  } catch (err) {
+    console.warn('[plasmic] generateStaticParams: no published pages —', err);
+
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Params }) {

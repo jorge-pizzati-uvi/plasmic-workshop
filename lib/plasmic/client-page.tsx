@@ -51,6 +51,16 @@ export function ClientPlasmicPage({
       prefetchedQueryData={queryData}
       pageRoute={pageRoute}
       pageParams={pageParams}
+      // No Suspense around the page. Both the loader's root provider
+      // (disableRootLoadingBoundary) and react-web's component root
+      // (disableLoadingBoundary) wrap the tree in
+      // <Suspense fallback="Loading..."> by default. React 19 outlines any
+      // completed boundary larger than ~12.8 KB: the shell gets the fallback
+      // and the real HTML is swapped in by a script, so no-JS clients and
+      // HTML-only crawlers see "Loading..." instead of the page. With
+      // prefetchedData nothing suspends on the server, so no boundary needed.
+      disableRootLoadingBoundary
+      disableLoadingBoundary
     >
       <PlasmicComponent component={componentName} />
     </PlasmicRootProvider>

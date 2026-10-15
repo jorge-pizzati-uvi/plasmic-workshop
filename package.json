@@ -15,6 +15,7 @@
     "@hookform/resolvers": "^3.3.2",
     "@internationalized/date": "^3.12.2",
     "@plasmicapp/host": "2.0.19",
+    "@plasmicapp/loader-fetcher": "2.0.8",
     "@plasmicapp/loader-nextjs": "2.0.28",
     "next": "15.5.28",
     "react": "19.1.0",

@@ -13,9 +13,15 @@
 import { unstable_cache } from 'next/cache';
 import { draftMode } from 'next/headers';
 import type { ComponentRenderData } from '@plasmicapp/loader-nextjs';
+import { internal_getCachedBundleInNodeServer } from '@plasmicapp/loader-fetcher';
 import { PLASMIC, PREVIEW_PLASMIC } from '@/lib/plasmic/init-server';
 import '@/lib/plasmic/server-registrations';
-import { ClientPlasmicPage } from '@/lib/plasmic/client-page-lazy';
+// Static import on purpose. A next/dynamic() wrapper adds a Suspense
+// boundary, and React 19's streaming renderer outlines any completed boundary
+// larger than ~12.8 KB: the shell gets the fallback and the real HTML is
+// swapped in by a script. A Plasmic page is hundreds of KB, so without
+// JavaScript the page would show only the fallback. See client-page.tsx.
+import { ClientPlasmicPage } from '@/lib/plasmic/client-page';
 import ErrorBoundary from '@/components/error-boundary';
 import { PLASMIC_PAGE_REVALIDATE_SECONDS } from '@/lib/plasmic/config';
 import { POSTS_TAG } from '@/lib/plasmic/data/posts';
@@ -113,6 +119,50 @@ const cacheForPath = (path: string) =>
     }
   );
 
+// The loader strips server modules from the ComponentRenderData it returns
+// (that object is serialised to the browser), and expects the SSR pass to
+// recover them from an in-process node cache (globalThis.__PLASMIC_BUNDLES)
+// that the fetcher fills whenever it downloads a bundle. unstable_cache hands
+// back page data without any download, so a fresh process (or a build
+// worker, or a lambda that never fetched) has no server modules: the page
+// renders empty HTML and only appears after hydration. Fill the node cache
+// when it is missing or holds a different project version than the cached
+// page data; the fetcher memoises the bundle, so this costs one download per
+// process per published version.
+async function ensureServerBundle(
+  loader: ServerLoader,
+  data: ComponentRenderData,
+  path: string
+): Promise<void> {
+  const opts = (loader as unknown as { __internal?: { opts?: unknown } })
+    .__internal?.opts;
+  const wanted = data.bundle.projects;
+  const cached = opts
+    ? (internal_getCachedBundleInNodeServer(opts as never) as
+        | { projects?: { id: string; version: string }[] }
+        | undefined)
+    : undefined;
+  const fresh =
+    !!cached &&
+    wanted.every(p =>
+      cached.projects?.some(c => c.id === p.id && c.version === p.version)
+    );
+
+  if (fresh) {
+    return;
+  }
+
+  try {
+    await withTimeout(
+      loader.maybeFetchComponentData(path),
+      PLASMIC_FETCH_TIMEOUT_MS,
+      `warm server bundle ${path}`
+    );
+  } catch (err) {
+    console.warn(`[plasmic] ensureServerBundle failed for ${path}:`, err);
+  }
+}
+
 export const fetchPlasmicPage = async (
   path: string
 ): Promise<PlasmicPageResult | null> => {
@@ -120,7 +170,13 @@ export const fetchPlasmicPage = async (
     return null;
   }
   try {
-    return await cacheForPath(path)();
+    const result = await cacheForPath(path)();
+
+    if (result) {
+      await ensureServerBundle(PLASMIC, result.data, path);
+    }
+
+    return result;
   } catch (err) {
     console.warn(`[plasmic] fetchPlasmicPage failed for ${path}:`, err);
 

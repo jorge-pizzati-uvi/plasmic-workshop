@@ -22,6 +22,11 @@ Scripts: `dev`, `build`, `start`, `lint`, `typecheck`, `format`.
 4. A client component renders the page with `PlasmicRootProvider` + `PlasmicComponent`, seeded with the prefetched bundle and query data.
 5. Unknown paths → 404.
 
+Two things keep the HTML complete without JavaScript (verified by fetching a page with `curl` and checking the copy is in the DOM, not only in the RSC payload):
+
+- **Server modules.** The `ComponentRenderData` the loader returns has no server modules (it is serialised to the browser). SSR recovers them from an in-process cache (`globalThis.__PLASMIC_BUNDLES`) that the fetcher fills when it downloads a bundle. Because the page data comes from `unstable_cache`, a fresh process may never download, so `fetchPlasmicPage` warms that cache when it is missing or on another project version (`ensureServerBundle`). Without it the server renders an empty page and content appears only after hydration.
+- **No Suspense around the page.** React 19 outlines any completed Suspense boundary larger than ~12.8 KB: the shell carries the fallback and a script swaps the real HTML in. Both Plasmic boundaries are off (`disableRootLoadingBoundary`, `disableLoadingBoundary`) and the renderer is a static import, not `next/dynamic` (which adds its own boundary). Otherwise no-JS clients see "Loading...".
+
 ## Site chrome (placeholder header/footer)
 
 Plasmic pages render inside `app/(site)/layout.tsx`, which wraps them with a placeholder header and footer sized like production (measured on sandals.com): the header is a sticky, zero-height overlay (hero bleeds underneath, 99px bar) that becomes a compact 54px dark bar once scrolled, which is the offset the pages' sticky sub-nav is authored against. The footer matches the production colour and rough height. `/plasmic-host` sits outside the route group so the Studio canvas stays chrome-free. Styles: `components/site-chrome/site-chrome.module.css`.

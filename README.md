@@ -38,7 +38,7 @@ Locally use `http://localhost:3000` as `<host>`. Secrets are optional locally (u
 
 ## Code components
 
-Registered in `lib/plasmic/host-registrations.ts` on both client loaders (published + preview); components live in `components/plasmic/<name>/`. Registered today: StickyWrapper, SliderCarousel, Tabs (container/button/content/underline), Selection (provider/item), TooltipWrapper, CustomScrollbar, ModalWrapper, Accordion (container/button/content), Form (container, field, text, select, checkbox, radio group, checkbox group, combobox, date picker).
+Registered in `lib/plasmic/host-registrations.ts` on both client loaders (published + preview); components live in `components/plasmic/<name>/`. Registered today: StickyWrapper, SliderCarousel, Tabs (container/button/content/underline), Selection (provider/item), TooltipWrapper, CustomScrollbar, ModalWrapper, Accordion (container/button/content), Form (container, field, text, select, checkbox, radio group, checkbox group, combobox, date picker). Plus `PostList` (workshop demo: primitive props, slot, choice variant, client fetch, `$ctx.posts`).
 
 Rules:
 - Components are `'use client'` and must not import server-only modules.

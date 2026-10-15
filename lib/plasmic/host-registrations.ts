@@ -22,6 +22,7 @@ import {
 } from '@/components/plasmic/slider-carousel/slider-carousel.actions';
 import StickyWrapper from '@/components/plasmic/sticky-wrapper';
 import TooltipWrapper from '@/components/plasmic/tooltip-wrapper';
+import PostList from '@/components/plasmic/post-list';
 import CustomScrollbar from '@/components/plasmic/custom-scrollbar';
 import ModalWrapper from '@/components/plasmic/modal';
 import AccordionContainer, {
@@ -1977,6 +1978,53 @@ function registerComponents(loader: Loader) {
     },
     defaultStyles: {
       width: 'stretch',
+    },
+  });
+  // PostList — workshop demo. One component covering primitive props, a
+  // slot, a choice-driven variant, a client fetch and a $ctx value.
+  loader.registerComponent(PostList, {
+    name: 'PostList',
+    displayName: 'Post List (demo)',
+    importPath: '@/components/plasmic/post-list',
+    // Publishes $ctx.posts = { count, loading, error, items } to the header slot.
+    providesData: true,
+    defaultStyles: {
+      width: 'stretch',
+    },
+    props: {
+      title: {
+        type: 'string',
+        defaultValue: 'Latest posts',
+        description: 'Heading used when the header slot is empty.',
+      },
+      limit: {
+        type: 'number',
+        defaultValue: 5,
+        min: 1,
+        max: 100,
+        description: 'How many posts to fetch (1–100).',
+      },
+      showBody: {
+        type: 'boolean',
+        defaultValue: true,
+        description: 'Show each post body under its title.',
+      },
+      layout: {
+        type: 'choice',
+        options: ['list', 'grid'],
+        defaultValue: 'list',
+        description: 'Stack posts or lay them out in a grid.',
+      },
+      header: {
+        type: 'slot',
+        defaultValue: [],
+        description: 'Rendered above the list. Can bind $ctx.posts.count.',
+      },
+      empty: {
+        type: 'slot',
+        defaultValue: [],
+        description: 'Shown while loading or when there are no posts.',
+      },
     },
   });
 }
